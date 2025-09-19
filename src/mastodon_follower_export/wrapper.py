@@ -5,7 +5,9 @@
 from importlib.metadata import version
 from typing import TYPE_CHECKING, TypedDict
 
+import keyring
 from mastodon import Mastodon as MastodonAPI
+from mastodon import MastodonError
 from PySide6.QtGui import QDesktopServices
 
 from . import __version__
@@ -25,20 +27,58 @@ class Follower(TypedDict):
 
 class Mastodon:
     scopes: list[str]
-    instance_domain: str | None = None
     _user_agent = (
         f"mastodon-follower-export {__version__}, using mastodonpy {version('mastodon.py')}"
     )
-    _client_id: str | None = None
-    _client_secret: str | None = None
-    _access_token: str | None = None
 
     def __init__(self) -> None:
         self.scopes = ["read:accounts", "read:follows"]
 
+    @property
+    def instance_domain(self) -> str | None:
+        return keyring.get_password("mastodon_follower_export", "instance_domain")
+
+    @instance_domain.setter
+    def instance_domain(self, v: str) -> None:
+        keyring.set_password("mastodon_follower_export", "instance_domain", v)
+
+    @property
+    def client_id(self) -> str | None:
+        return keyring.get_password("mastodon_follower_export", "client_id")
+
+    @client_id.setter
+    def client_id(self, v: str) -> None:
+        keyring.set_password("mastodon_follower_export", "client_id", v)
+
+    @property
+    def client_secret(self) -> str | None:
+        return keyring.get_password("mastodon_follower_export", "client_secret")
+
+    @client_secret.setter
+    def client_secret(self, v: str) -> None:
+        keyring.set_password("mastodon_follower_export", "client_secret", v)
+
+    @property
+    def access_token(self) -> str | None:
+        return keyring.get_password("mastodon_follower_export", "access_token")
+
+    @access_token.setter
+    def access_token(self, v: str) -> None:
+        keyring.set_password("mastodon_follower_export", "access_token", v)
+
+    @property
+    def needs_reauth(self) -> bool:
+        if self.instance_domain is None or self.access_token is None:
+            return True
+        try:
+            _ = self.get_current_user()
+        except MastodonError:
+            return True
+        return False
+
     def create_app(self, instance_domain: str) -> None:
         self.instance_domain = instance_domain
-        self._client_id, self._client_secret = MastodonAPI.create_app(  # pyright: ignore[reportUnknownMemberType]
+        self.client_id, self.client_secret = MastodonAPI.create_app(  # pyright: ignore[reportUnknownMemberType]
             "Mastodon Follower Export",
             api_base_url=instance_domain,
             scopes=self.scopes,
@@ -49,25 +89,32 @@ class Mastodon:
         QDesktopServices.openUrl(
             MastodonAPI(
                 api_base_url=self.instance_domain,
-                client_id=self._client_id,
-                client_secret=self._client_secret,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
             ).auth_request_url(scopes=self.scopes)
         )
 
     def auth(self, code: str) -> None:
-        self._access_token = MastodonAPI(
+        self.access_token = MastodonAPI(
             api_base_url=self.instance_domain,
-            client_id=self._client_id,
-            client_secret=self._client_secret,
+            client_id=self.client_id,
+            client_secret=self.client_secret,
         ).log_in(
             code=code,
             scopes=self.scopes,
         )
 
+    def get_current_user(self) -> str:
+        user = MastodonAPI(
+            api_base_url=self.instance_domain,
+            access_token=self.access_token,
+        ).account_verify_credentials()
+        return f"@{user.username}@{self.instance_domain}"
+
     def get_followers(self) -> list[Follower]:
         api = MastodonAPI(
             api_base_url=self.instance_domain,
-            access_token=self._access_token,
+            access_token=self.access_token,
         )
         followers_response: PaginatableList[Account] = api.fetch_remaining(  # pyright: ignore[reportAssignmentType]
             api.account_followers(api.me())  # pyright: ignore[reportArgumentType]
