@@ -1,4 +1,5 @@
 import csv
+from inspect import get_annotations
 from pathlib import Path
 
 from .wrapper import Follower
@@ -9,7 +10,7 @@ def write(followers: list[Follower], path: Path) -> None:
         writer = csv.DictWriter(
             f,
             quoting=csv.QUOTE_NOTNULL,
-            fieldnames=[*Follower.__required_keys__, *Follower.__optional_keys__],
+            fieldnames=get_annotations(Follower).keys(),
         )
         writer.writeheader()
         writer.writerows(followers)
