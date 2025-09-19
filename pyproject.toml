@@ -16,7 +16,10 @@ dependencies = [
     "validators>=0.35.0",
 ]
 [dependency-groups]
-dev = ["pyright>=1.1.405"]
+dev = [
+    "nuitka>=2.7.16",
+    "pyright>=1.1.405",
+]
 
 
 [build-system]

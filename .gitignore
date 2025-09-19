@@ -2,6 +2,7 @@
 build/
 dist/
 **/_version.py
+nuitka-crash-report.xml
 
 # Virtual environments
 .venv
