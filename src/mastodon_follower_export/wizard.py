@@ -110,7 +110,7 @@ class ConfirmAccountPage(Page):
 
     @override
     def nextId(self) -> PageID:
-        if self.radio_continue:
+        if self.radio_continue.isChecked():
             return PageID.ChooseDestination
         return PageID.ChooseInstance
 
