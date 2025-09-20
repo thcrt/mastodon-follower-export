@@ -8,6 +8,7 @@ from .wizard import MainWizard
 
 if __name__ == "__main__":
     app = QApplication([])
+    app.setStyle("Fusion")
     wizard = MainWizard()
     wizard.show()
     app.exec()
