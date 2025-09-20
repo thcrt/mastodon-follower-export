@@ -55,6 +55,7 @@ jobs:
         with:
           name: Build for Linux
           path: mastodon_follower_export.bin
+          compression-level: 0
       
       - name: Upload Artifacts (Windows)
         uses: actions/upload-artifact@v4
@@ -67,6 +68,4 @@ jobs:
         if: ${{ github.event_name == 'release' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          shopt -s extglob
-          gh release upload ${{ github.ref_name }} mastodon-follower-export.@(exe|bin)
+        run: gh release upload ${{ github.ref_name }} "Build for ${{ runner.os }}.zip"
