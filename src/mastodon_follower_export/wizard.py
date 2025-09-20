@@ -2,20 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from datetime import datetime
 from enum import IntEnum, auto
 from pathlib import Path
 from typing import Literal, override
 
 from mastodon import MastodonError
-from PySide6.QtCore import Qt
+from PySide6.QtCore import SIGNAL, QDir, QStandardPaths, Qt
 from PySide6.QtWidgets import (
-    QFileDialog,
     QFormLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPushButton,
     QRadioButton,
     QVBoxLayout,
     QWidget,
@@ -23,7 +20,7 @@ from PySide6.QtWidgets import (
     QWizardPage,
 )
 
-from .util import CodeValidator, DomainValidator
+from .util import CodeValidator, DomainValidator, FileLine
 from .wrapper import Mastodon
 from .writer import write
 
@@ -197,26 +194,27 @@ class ChooseDestinationPage(Page):
         """)
         layout.addWidget(self.label_description)
 
-        self.line_path = QLineEdit()
-        layout.addWidget(self.line_path)
-        self.registerField("path*", self.line_path)
+        self.file_line = FileLine(self)
+        layout.addWidget(self.file_line)
 
-        dialog = QFileDialog(self)
-        dialog.selectFile(self.field("path"))
-        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-        dialog.currentChanged.connect(self.line_path.setText)
-
-        button_choose = QPushButton("Choose...", self)
-        button_choose.clicked.connect(dialog.open)
-        layout.addWidget(button_choose)
+        self.registerField(
+            "path*",
+            self.file_line,
+            # The Qt property, which it can find because we defined it
+            # with `PySide6.QtCore.Property`.
+            "path",
+            # Somehow, this lets Qt notice when the `path_changed` signal is emitted. I have no clue
+            # how this works, or why we use `SIGNAL()`, but a good place to start might be here:
+            # https://doc.qt.io/qtforpython-6/tutorials/basictutorial/signals_and_slots.html#specifying-signals-and-slots-by-method-signature-strings
+            SIGNAL("path_changed(QString)"),
+        )
 
     @override
     def initializePage(self) -> None:
-        self.line_path.setText(
-            str(
-                Path(f"~/followers_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv").expanduser()
-            )
+        self.file_line.update_path(
+            QDir(
+                QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+            ).filePath("followers.csv")
         )
 
     @override
