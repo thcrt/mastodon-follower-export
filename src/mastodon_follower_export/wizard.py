@@ -20,7 +20,8 @@ from PySide6.QtWidgets import (
     QWizardPage,
 )
 
-from .util import CodeValidator, DomainValidator, FileLine
+from .validators import CodeValidator, DomainValidator
+from .widgets import FileLine
 from .wrapper import Mastodon
 from .writer import write
 
