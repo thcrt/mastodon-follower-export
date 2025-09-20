@@ -40,6 +40,13 @@ class Page(QWizardPage):
         super().__init__(parent)
         self.api = api
 
+    @override
+    def buttonText(self, which: QWizard.WizardButton) -> str:
+        # By default, button text is returned including 'mnemonics' indicated by a preceding &
+        # character, and including the ` >` arrow at the end.
+        # See https://doc.qt.io/qtforpython-6/PySide6/QtGui/QShortcut.html#detailed-description.
+        return super().buttonText(which).replace("&", "", count=1).removesuffix(" >")
+
 
 class MainWizard(QWizard):
     def __init__(self, parent: QWidget | None = None) -> None:
