@@ -2,8 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from dataclasses import dataclass
 from importlib.metadata import version
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING
 
 import keyring
 from mastodon import Mastodon as MastodonAPI
@@ -17,7 +18,8 @@ if TYPE_CHECKING:
     from mastodon.types_base import PaginatableList
 
 
-class Follower(TypedDict):
+@dataclass
+class Follower:
     username: str
     display_name: str
     note: str
