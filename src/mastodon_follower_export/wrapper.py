@@ -45,7 +45,7 @@ class Mastodon:
     def instance_domain(self, v: str) -> None:
         keyring.set_password("mastodon-follower-export/instance-domain", "", v)
         if not (self._client_id and self._client_secret):
-            self._client_id, self._client_secret = MastodonAPI.create_app(  # pyright: ignore[reportUnknownMemberType]
+            self._client_id, self._client_secret = MastodonAPI.create_app(
                 self._name,
                 api_base_url=self.instance_domain,
                 scopes=self._scopes,
@@ -129,8 +129,8 @@ class Mastodon:
             api_base_url=self.instance_domain,
             access_token=self._access_token,
         )
-        followers_response: PaginatableList[Account] = api.fetch_remaining(  # pyright: ignore[reportAssignmentType]
-            api.account_followers(api.me())  # pyright: ignore[reportArgumentType]
+        followers_response: PaginatableList[Account] = api.fetch_remaining(
+            api.account_followers(api.me())
         )
         followers: list[Follower] = []
         for follower in followers_response:
