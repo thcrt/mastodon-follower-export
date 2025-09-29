@@ -80,7 +80,7 @@ class Mastodon:
 
     def create_app(self, instance_domain: str) -> None:
         self.instance_domain = instance_domain
-        self.client_id, self.client_secret = MastodonAPI.create_app(  # pyright: ignore[reportUnknownMemberType]
+        self.client_id, self.client_secret = MastodonAPI.create_app(
             "Mastodon Follower Export",
             api_base_url=instance_domain,
             scopes=self.scopes,
@@ -118,8 +118,8 @@ class Mastodon:
             api_base_url=self.instance_domain,
             access_token=self.access_token,
         )
-        followers_response: PaginatableList[Account] = api.fetch_remaining(  # pyright: ignore[reportAssignmentType]
-            api.account_followers(api.me())  # pyright: ignore[reportArgumentType]
+        followers_response: PaginatableList[Account] = api.fetch_remaining(
+            api.account_followers(api.me())
         )
         followers: list[Follower] = []
         for follower in followers_response:
