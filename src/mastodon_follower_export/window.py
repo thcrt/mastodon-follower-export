@@ -14,11 +14,18 @@ from PySide6.QtCore import (
     Signal,
     Slot,
 )
-from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence, QValidator
+from PySide6.QtGui import (
+    QAction,
+    QDesktopServices,
+    QIcon,
+    QKeySequence,
+    QValidator,
+)
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFrame,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
@@ -29,6 +36,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from mastodon_follower_export.widgets import Throbber
 
 from . import __version__
 from .validators import CodeValidator, DomainValidator
@@ -138,7 +147,7 @@ class CentralWidget(QFrame):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.setContentsMargins(11, 11, 11, 11)
+        self.setContentsMargins(11, 11, 11, 0)
         self.setFrameShape(QFrame.Shape.StyledPanel)
 
         self.table_view = FollowerTableView()
@@ -251,6 +260,16 @@ class CodeDialog(InputDialog):
         self.setWindowTitle("Enter authentication code")
 
 
+class ActionStatus(QWidget):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        layout = QHBoxLayout(self)
+        self.throbber = Throbber()
+        layout.addWidget(self.throbber)
+        self.status = QLabel()
+        layout.addWidget(self.status)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -261,6 +280,10 @@ class MainWindow(QMainWindow):
         self.menuBar().addMenu(menu_file)
         menu_help = QMenu(self, title="&Help")
         self.menuBar().addMenu(menu_help)
+
+        self.action_status = ActionStatus(self)
+        self.action_status.setVisible(False)
+        self.statusBar().addPermanentWidget(self.action_status, stretch=1)
 
         action_log_in = QAction(self, text="Sign In Again")
         action_log_in.triggered.connect(self._force_login)
