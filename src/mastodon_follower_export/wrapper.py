@@ -52,8 +52,12 @@ class Mastodon:
                 user_agent=self._user_agent,
             )
 
+    @property
+    def authed(self) -> bool:
+        return (self.instance_domain and self._access_token)
+
     def check_auth(self) -> bool:
-        if self.instance_domain and self._access_token:
+        if self.authed:
             try:
                 _ = self.get_current_user()
             except MastodonError:

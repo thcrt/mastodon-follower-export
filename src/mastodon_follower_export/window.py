@@ -88,6 +88,10 @@ class MainWindow(QMainWindow):
         action_log_in.triggered.connect(self.force_login)
         menu_file.addAction(action_log_in)
 
+        action_refresh = QAction(self, text="Refresh List")
+        action_refresh.triggered.connect(self.fill_data)
+        menu_file.addAction(action_refresh)
+
         action_quit = QAction(
             self,
             text="Quit",
@@ -110,11 +114,11 @@ class MainWindow(QMainWindow):
         menu_help.addAction(action_about)
 
         self.central_widget = CentralWidget(self)
-        self.central_widget.login_button.clicked.connect(self.fill_data)
+        self.central_widget.login_button.clicked.connect(self.login)
         self.setCentralWidget(self.central_widget)
 
         self.api = Mastodon()
-        if self.api.check_auth():
+        if self.api.authed:
             self.fill_data()
 
         geometry = self.screen().availableGeometry()
@@ -131,11 +135,15 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     @Slot()
-    def fill_data(self) -> None:
+    def login(self) -> None:
         if not self.api.instance_domain:
             self._prompt_instance()
         if not self.api.check_auth():
             self._prompt_code()
+        self.fill_data()
+
+    @Slot()
+    def fill_data(self) -> None:
         self.central_widget.fill_data(self.api.get_followers())
 
     def _prompt_instance(self) -> None:
