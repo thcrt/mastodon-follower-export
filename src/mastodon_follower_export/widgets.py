@@ -4,9 +4,30 @@
 
 from typing import cast, override
 
-from PySide6.QtCore import Property, QDir, Qt, QTimer, Signal, Slot
-from PySide6.QtGui import QColor, QColorConstants, QPainter, QPaintEvent, QPen
-from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import (
+    Property,
+    QDir,
+    Qt,
+    QTimer,
+    Signal,
+    Slot,
+)
+from PySide6.QtGui import (
+    QColor,
+    QColorConstants,
+    QPainter,
+    QPaintEvent,
+    QPen,
+)
+from PySide6.QtWidgets import (
+    QFileDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QWidget,
+)
 
 
 class FileLine(QFrame):
@@ -127,3 +148,13 @@ class Throbber(QWidget):
     def _advance(self) -> None:
         self._counter = (self._counter + 1) % self.line_count
         self.update()
+
+
+class DisplayLabel(QLabel):
+    def __init__(self, parent: QWidget | None = None, text: str | None = None) -> None:
+        super().__init__(
+            parent,
+            text=text,
+            alignment=Qt.AlignmentFlag.AlignCenter,
+            textFormat=Qt.TextFormat.RichText,
+        )
