@@ -1,25 +1,29 @@
 from dataclasses import astuple, fields
-from typing import Literal, overload, override
+from typing import TYPE_CHECKING, Literal, overload, override
 
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, QObject, QPersistentModelIndex, Qt
-from PySide6.QtWidgets import QHeaderView, QTableView, QWidget
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide6.QtWidgets import QHeaderView, QTableView
 
 from .wrapper import Follower
 
 TOP_LEVEL_INDEX = QModelIndex()
 
+if TYPE_CHECKING:
+    from PySide6.QtCore import QObject, QPersistentModelIndex
+    from PySide6.QtWidgets import QWidget
+
 
 class FollowerTableModel(QAbstractTableModel):
-    def __init__(self, parent: QObject | None = None, data: list[Follower] | None = None) -> None:
+    def __init__(self, parent: "QObject | None" = None, data: list[Follower] | None = None) -> None:
         super().__init__(parent)
         self._data = data or []
 
     @override
-    def rowCount(self, parent: QModelIndex | QPersistentModelIndex = TOP_LEVEL_INDEX) -> int:
+    def rowCount(self, parent: "QModelIndex | QPersistentModelIndex" = TOP_LEVEL_INDEX) -> int:
         return len(self._data)
 
     @override
-    def columnCount(self, parent: QModelIndex | QPersistentModelIndex = TOP_LEVEL_INDEX) -> int:
+    def columnCount(self, parent: "QModelIndex | QPersistentModelIndex" = TOP_LEVEL_INDEX) -> int:
         return len(fields(Follower))
 
     @overload
@@ -54,20 +58,20 @@ class FollowerTableModel(QAbstractTableModel):
     @overload
     def data(  # pyright: ignore[reportOverlappingOverload]
         self,
-        index: QModelIndex | QPersistentModelIndex,
+        index: "QModelIndex | QPersistentModelIndex",
         role: Literal[Qt.ItemDataRole.DisplayRole],
     ) -> str: ...
     @overload
     def data(
         self,
-        index: QModelIndex | QPersistentModelIndex,
+        index: "QModelIndex | QPersistentModelIndex",
         role: int,
     ) -> None: ...
 
     @override
     def data(
         self,
-        index: QModelIndex | QPersistentModelIndex,
+        index: "QModelIndex | QPersistentModelIndex",
         role: int = Qt.ItemDataRole.DisplayRole,
     ) -> str | None:
         follower = self._data[index.row()]
@@ -84,7 +88,7 @@ class FollowerTableModel(QAbstractTableModel):
 
 
 class FollowerTableView(QTableView):
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent: "QWidget | None" = None) -> None:
         super().__init__(parent)
 
         self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)

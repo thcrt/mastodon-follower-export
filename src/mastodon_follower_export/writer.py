@@ -4,12 +4,15 @@
 
 import csv
 from dataclasses import asdict, fields
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .wrapper import Follower
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def write(followers: list[Follower], path: Path) -> None:
+
+def write(followers: list[Follower], path: "Path") -> None:
     with path.open("w+", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,

@@ -2,23 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from typing import cast, override
+from typing import TYPE_CHECKING, cast, override
 
-from PySide6.QtCore import (
-    Property,
-    QDir,
-    Qt,
-    QTimer,
-    Signal,
-    Slot,
-)
-from PySide6.QtGui import (
-    QColor,
-    QColorConstants,
-    QPainter,
-    QPaintEvent,
-    QPen,
-)
+from PySide6.QtCore import Property, QDir, Qt, QTimer, Signal, Slot
+from PySide6.QtGui import QColorConstants, QPainter, QPen
 from PySide6.QtWidgets import (
     QFileDialog,
     QFrame,
@@ -28,6 +15,9 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget,
 )
+
+if TYPE_CHECKING:
+    from PySide6.QtGui import QColor, QPaintEvent
 
 
 class FileLine(QFrame):
@@ -85,7 +75,7 @@ class Throbber(QWidget):
         self,
         parent: QWidget | None = None,
         *,
-        color: QColor = QColorConstants.Black,
+        color: "QColor" = QColorConstants.Black,
         line_count: int = 8,
         line_length: int = 5,
         line_width: int = 2,
@@ -94,7 +84,7 @@ class Throbber(QWidget):
     ) -> None:
         super().__init__(parent)
 
-        self.color = QColor(color)
+        self.color = color
         self.line_count = line_count
 
         self.line_length = line_length
@@ -117,7 +107,7 @@ class Throbber(QWidget):
         return ((self.inner_radius + self.line_length) * 2) + self.line_width
 
     @override
-    def paintEvent(self, event: QPaintEvent) -> None:
+    def paintEvent(self, event: "QPaintEvent") -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, on=True)
         pen = QPen(

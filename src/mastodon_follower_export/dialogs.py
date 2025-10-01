@@ -1,20 +1,19 @@
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import Signal, Slot
-from PySide6.QtGui import QValidator
-from PySide6.QtWidgets import (
-    QDialog,
-    QDialogButtonBox,
-    QLineEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout
 
 from . import __version__
 from .validators import CodeValidator, DomainValidator
 from .widgets import DisplayLabel
 
+if TYPE_CHECKING:
+    from PySide6.QtGui import QValidator
+    from PySide6.QtWidgets import QWidget
+
 
 class AboutDialog(QDialog):
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent: "QWidget | None" = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("About this program")
         layout = QVBoxLayout(self)
@@ -39,10 +38,10 @@ class InputDialog(QDialog):
 
     def __init__(
         self,
-        parent: QWidget | None = None,
+        parent: "QWidget | None" = None,
         previous: str | None = None,
         description: str = "",
-        validator: type[QValidator] | None = None,
+        validator: "type[QValidator] | None" = None,
         buttons: QDialogButtonBox.StandardButton = (
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         ),
@@ -74,7 +73,7 @@ class InputDialog(QDialog):
 
 
 class InstanceDialog(InputDialog):
-    def __init__(self, parent: QWidget | None = None, previous: str | None = None) -> None:
+    def __init__(self, parent: "QWidget | None" = None, previous: str | None = None) -> None:
         super().__init__(
             parent,
             previous=previous,
@@ -87,7 +86,7 @@ class InstanceDialog(InputDialog):
 
 
 class CodeDialog(InputDialog):
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent: "QWidget | None" = None) -> None:
         super().__init__(
             parent,
             description="""

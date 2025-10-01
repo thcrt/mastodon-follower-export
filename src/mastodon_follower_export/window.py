@@ -2,17 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from typing import TYPE_CHECKING
 
-from PySide6.QtCore import (
-    Qt,
-    Slot,
-)
-from PySide6.QtGui import (
-    QAction,
-    QDesktopServices,
-    QIcon,
-    QKeySequence,
-)
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -27,7 +20,10 @@ from PySide6.QtWidgets import (
 from .dialogs import AboutDialog, CodeDialog, InstanceDialog
 from .table import FollowerTableModel, FollowerTableView
 from .widgets import DisplayLabel, Throbber
-from .wrapper import Follower, Mastodon
+from .wrapper import Mastodon
+
+if TYPE_CHECKING:
+    from .wrapper import Follower
 
 
 class CentralWidget(QFrame):
@@ -56,7 +52,7 @@ class CentralWidget(QFrame):
         self.login_button.setText("Sign in")
         layout.addWidget(self.login_button)
 
-    def fill_data(self, data: list[Follower]) -> None:
+    def fill_data(self, data: "list[Follower]") -> None:
         self.table_view.setModel(FollowerTableModel(self, data))
         self.table_view.setVisible(True)
         self.hint_label.setVisible(False)
