@@ -52,8 +52,7 @@ class Mastodon:
                 user_agent=self._user_agent,
             )
 
-    @property
-    def is_logged_in(self) -> bool:
+    def check_auth(self) -> bool:
         if self.instance_domain and self._access_token:
             try:
                 _ = self.get_current_user()

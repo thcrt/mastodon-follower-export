@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.action_status, stretch=1)
 
         action_log_in = QAction(self, text="Sign In Again")
-        action_log_in.triggered.connect(self._force_login)
+        action_log_in.triggered.connect(self.force_login)
         menu_file.addAction(action_log_in)
 
         action_quit = QAction(
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.api = Mastodon()
-        if self.api.is_logged_in:
+        if self.api.check_auth():
             self.fill_data()
 
         geometry = self.screen().availableGeometry()
@@ -125,37 +125,36 @@ class MainWindow(QMainWindow):
         dialog.show()
 
     @Slot()
-    def fill_data(self) -> None:
-        self._login()
-        self.central_widget.fill_data(self.api.get_followers())
-
-    def _prompt_instance(self) -> None:
-        instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)
-        instance_dialog.text_updated.connect(self._login_set_instance)
-        instance_dialog.exec()
-
-    def _prompt_code(self) -> None:
-        QDesktopServices.openUrl(self.api.get_auth_url())
-        code_dialog = CodeDialog(self)
-        code_dialog.text_updated.connect(self._login_update_auth)
-        code_dialog.exec()
-
-    def _login(self) -> None:
-        if not self.api.instance_domain:
-            self._prompt_instance()
-        if not self.api.is_logged_in:
-            self._prompt_code()
-
-    @Slot()
-    def _force_login(self) -> None:
+    def force_login(self) -> None:
         self._prompt_instance()
         self._prompt_code()
         self.fill_data()
 
     @Slot()
-    def _login_set_instance(self, domain: str) -> None:
-        self.api.instance_domain = domain
+    def fill_data(self) -> None:
+        if not self.api.instance_domain:
+            self._prompt_instance()
+        if not self.api.check_auth():
+            self._prompt_code()
+        self.central_widget.fill_data(self.api.get_followers())
 
-    @Slot()
-    def _login_update_auth(self, code: str) -> None:
-        self.api.auth(code)
+    def _prompt_instance(self) -> None:
+        instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)
+
+        @Slot()
+        def login_set_instance(domain: str) -> None:
+            self.api.instance_domain = domain
+
+        instance_dialog.text_updated.connect(login_set_instance)
+        instance_dialog.exec()
+
+    def _prompt_code(self) -> None:
+        QDesktopServices.openUrl(self.api.get_auth_url())
+        code_dialog = CodeDialog(self)
+
+        @Slot()
+        def login_update_auth(code: str) -> None:
+            self.api.auth(code)
+
+        code_dialog.text_updated.connect(login_update_auth)
+        code_dialog.exec()
