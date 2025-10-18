@@ -2,11 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, QThreadPool, Slot
+from PySide6.QtCore import QDir, QStandardPaths, Qt, QThreadPool, Slot
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -22,6 +24,7 @@ from .table import FollowerTableModel, FollowerTableView
 from .widgets import DisplayLabel, Throbber
 from .worker import GetFollowersWorker
 from .wrapper import Mastodon
+from .writer import write
 
 if TYPE_CHECKING:
     from .wrapper import Follower
@@ -55,8 +58,11 @@ class CentralWidget(QFrame):
         self.login_button.setVisible(False)
         layout.addWidget(self.login_button)
 
+        self.data: list[Follower] = []
+
     @Slot()
     def fill_data(self, data: "list[Follower]") -> None:
+        self.data = data
         self.table_view.setModel(FollowerTableModel(self, data))
         self.table_view.setVisible(True)
         self.hint_label.setVisible(False)
@@ -94,13 +100,22 @@ class MainWindow(QMainWindow):
         action_log_in.triggered.connect(self.force_login)
         menu_file.addAction(action_log_in)
 
-        action_change_instance = QAction(self, text = "Change Instance")
+        action_change_instance = QAction(self, text="Change Instance")
         action_change_instance.triggered.connect(self.change_instance)
         menu_file.addAction(action_change_instance)
 
         action_refresh = QAction(self, text="Refresh List")
         action_refresh.triggered.connect(self.fill_data)
         menu_file.addAction(action_refresh)
+
+        action_save = QAction(
+            self,
+            text="Save List",
+            icon=QIcon.fromTheme(QIcon.ThemeIcon.DocumentSave),
+            shortcut=QKeySequence(QKeySequence.StandardKey.Save),
+        )
+        action_save.triggered.connect(self.save)
+        menu_file.addAction(action_save)
 
         action_quit = QAction(
             self,
@@ -172,6 +187,17 @@ class MainWindow(QMainWindow):
         self.action_status.setVisible(True)
         worker.signals.result.connect(self._fill_data)
         self.threadpool.start(worker)
+
+    @Slot()
+    def save(self) -> None:
+        path = QFileDialog.getSaveFileName(
+            self,
+            dir=QDir(
+                QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+            ).filePath("followers.csv"),
+        )[0]
+        if path:
+            write(self.central_widget.data, Path(path))
 
     def _prompt_instance(self) -> None:
         instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)
