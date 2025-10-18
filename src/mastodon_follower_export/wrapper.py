@@ -137,14 +137,18 @@ class Mastodon:
         )
         followers: list[Follower] = []
         for follower in followers_response:
-            rel = api.account_relationships(follower)[0]
+            note = ""
+            mutual = False
+            if (relationships := api.account_relationships(follower)):
+                note = relationships[0].note
+                mutual = relationships[0].following
             followers.append(
                 Follower(
                     username=follower.acct,
                     display_name=follower.display_name,
-                    note=rel.note,
+                    note=note,
                     url=follower.url,
-                    mutual=rel.following,
+                    mutual=mutual,
                 )
             )
         return followers
