@@ -4,7 +4,7 @@
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QFrame,
@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 from .dialogs import AboutDialog, CodeDialog, InstanceDialog
 from .table import FollowerTableModel, FollowerTableView
 from .widgets import DisplayLabel, Throbber
+from .worker import GetFollowersWorker
 from .wrapper import Mastodon
 
 if TYPE_CHECKING:
@@ -47,11 +48,14 @@ class CentralWidget(QFrame):
             """,
         )
         layout.addWidget(self.hint_label)
+        self.hint_label.setVisible(False)
 
         self.login_button = QPushButton(self)
         self.login_button.setText("Sign in")
+        self.login_button.setVisible(False)
         layout.addWidget(self.login_button)
 
+    @Slot()
     def fill_data(self, data: "list[Follower]") -> None:
         self.table_view.setModel(FollowerTableModel(self, data))
         self.table_view.setVisible(True)
@@ -73,6 +77,8 @@ class MainWindow(QMainWindow):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
+        self.threadpool = QThreadPool(self)
+
         self.setWindowTitle("Mastodon Follower Export")
 
         menu_file = QMenu(self, title="&File")
@@ -87,6 +93,10 @@ class MainWindow(QMainWindow):
         action_log_in = QAction(self, text="Sign In Again")
         action_log_in.triggered.connect(self.force_login)
         menu_file.addAction(action_log_in)
+
+        action_change_instance = QAction(self, text = "Change Instance")
+        action_change_instance.triggered.connect(self.change_instance)
+        menu_file.addAction(action_change_instance)
 
         action_refresh = QAction(self, text="Refresh List")
         action_refresh.triggered.connect(self.fill_data)
@@ -120,6 +130,9 @@ class MainWindow(QMainWindow):
         self.api = Mastodon()
         if self.api.authed:
             self.fill_data()
+        else:
+            self.central_widget.hint_label.setVisible(True)
+            self.central_widget.login_button.setVisible(True)
 
         geometry = self.screen().availableGeometry()
         self.resize(int(geometry.width() * 0.8), int(geometry.height() * 0.8))
@@ -135,6 +148,11 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     @Slot()
+    def change_instance(self) -> None:
+        self._prompt_instance()
+        self.fill_data()
+
+    @Slot()
     def login(self) -> None:
         if not self.api.instance_domain:
             self._prompt_instance()
@@ -143,8 +161,17 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     @Slot()
+    def _fill_data(self, data: "list[Follower]") -> None:
+        self.central_widget.fill_data(data)
+        self.action_status.setVisible(False)
+
+    @Slot()
     def fill_data(self) -> None:
-        self.central_widget.fill_data(self.api.get_followers())
+        worker = GetFollowersWorker(self.api)
+        self.action_status.status.setText("Fetching followers list")
+        self.action_status.setVisible(True)
+        worker.signals.result.connect(self._fill_data)
+        self.threadpool.start(worker)
 
     def _prompt_instance(self) -> None:
         instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)
