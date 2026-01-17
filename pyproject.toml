@@ -10,17 +10,17 @@ authors = [
 requires-python = ">=3.13"
 
 dependencies = [
-    "keyring>=25.6.0",
+    "keyring>=25.7.0",
     "mastodon-py>=2.1.4",
-    "pyside6>=6.9.2",
+    "pyside6>=6.10.1",
     "rich>=14.2.0",
-    "typer>=0.19.2",
+    "typer>=0.21.1",
     "validators>=0.35.0",
 ]
 [dependency-groups]
 dev = [
-    "nuitka>=2.7.16",
-    "pyright>=1.1.405",
+    "nuitka>=2.8.9",
+    "pyright>=1.1.408",
     "ruff>=0.14.13",
 ]
 
