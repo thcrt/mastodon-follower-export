@@ -6,8 +6,8 @@
 [<img alt="License Badge" src="https://img.shields.io/github/license/thcrt/mastodon-follower-export?style=for-the-badge&color=blue">](./LICENSE)
 [<img alt="Build Status Badge" src="https://img.shields.io/github/actions/workflow/status/thcrt/mastodon-follower-export/build.yml?event=release&style=for-the-badge">](https://github.com/thcrt/tattl/actions/workflows/publish.yml)
 
-<img style="display: inline; height: 15rem;" src="./.github/screenshot-gui.png">
-<img style="display: inline; height: 15rem;" src="./.github/screenshot-cli.svg">
+<img src="./.github/screenshot-gui.png">
+<img src="./.github/screenshot-cli.svg">
 
 </div>
 
