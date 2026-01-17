@@ -10,14 +10,20 @@ from .wrapper import Follower
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import IO
 
 
-def write(followers: list[Follower], path: "Path") -> None:
-    with path.open("w+", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            quoting=csv.QUOTE_NOTNULL,
-            fieldnames=[field.name for field in fields(Follower)],
-        )
+def write(followers: list[Follower], f: "IO[str]", header: bool = True) -> None:
+    writer = csv.DictWriter(
+        f,
+        quoting=csv.QUOTE_NOTNULL,
+        fieldnames=[field.name for field in fields(Follower)],
+    )
+    if header:
         writer.writeheader()
-        writer.writerows([asdict(follower) for follower in followers])
+    writer.writerows([asdict(follower) for follower in followers])
+
+
+def write_file(followers: list[Follower], path: "Path", header: bool = True) -> None:
+    with path.open("w+", newline="", encoding="utf-8") as f:
+        write(followers, f, header)

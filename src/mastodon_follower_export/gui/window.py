@@ -19,15 +19,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from mastodon_follower_export.wrapper import Mastodon
+from mastodon_follower_export.writer import write_file
+
 from .dialogs import AboutDialog, CodeDialog, InstanceDialog
 from .table import FollowerTableModel, FollowerTableView
 from .widgets import DisplayLabel, Throbber
 from .worker import GetFollowersWorker
-from .wrapper import Mastodon
-from .writer import write
 
 if TYPE_CHECKING:
-    from .wrapper import Follower
+    from mastodon_follower_export.wrapper import Follower
 
 
 class CentralWidget(QFrame):
@@ -197,7 +198,7 @@ class MainWindow(QMainWindow):
             ).filePath("followers.csv"),
         )[0]
         if path:
-            write(self.central_widget.data, Path(path))
+            write_file(self.central_widget.data, Path(path))
 
     def _prompt_instance(self) -> None:
         instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)

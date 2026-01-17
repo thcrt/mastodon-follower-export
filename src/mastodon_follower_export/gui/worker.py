@@ -5,7 +5,7 @@ from PySide6.QtCore import (
     Slot,
 )
 
-from .wrapper import Mastodon
+from mastodon_follower_export.wrapper import Mastodon
 
 
 class GetFollowersWorker(QRunnable):

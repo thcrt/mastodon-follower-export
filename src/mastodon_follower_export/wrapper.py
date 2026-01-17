@@ -54,7 +54,7 @@ class Mastodon:
 
     @property
     def authed(self) -> bool:
-        return (self.instance_domain and self._access_token)
+        return self.instance_domain is not None and self._access_token is not None
 
     def check_auth(self) -> bool:
         if self.authed:
@@ -139,7 +139,7 @@ class Mastodon:
         for follower in followers_response:
             note = ""
             mutual = False
-            if (relationships := api.account_relationships(follower)):
+            if relationships := api.account_relationships(follower):
                 note = relationships[0].note
                 mutual = relationships[0].following
             followers.append(

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Literal, overload, override
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtWidgets import QHeaderView, QTableView
 
-from .wrapper import Follower
+from mastodon_follower_export.wrapper import Follower
 
 TOP_LEVEL_INDEX = QModelIndex()
 

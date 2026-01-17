@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout
 
-from . import __version__
+from mastodon_follower_export import __version__
+
 from .validators import CodeValidator, DomainValidator
 from .widgets import DisplayLabel
 
