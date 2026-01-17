@@ -1,6 +1,10 @@
 # Build artifacts
 build/
+*.build/
+*.onefile-build/
 dist/
+*.dist/
+mastodon_follower_export.bin
 **/_version.py
 nuitka-crash-report.xml
 
