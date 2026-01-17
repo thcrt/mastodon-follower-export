@@ -9,7 +9,7 @@ from dataclasses import astuple, fields
 from enum import StrEnum, auto
 from io import StringIO
 from sys import exit as sys_exit
-from typing import Annotated
+from typing import Annotated, ParamSpec, TypeVar
 
 from mastodon import MastodonIllegalArgumentError, MastodonNetworkError
 from rich import print  # noqa: A004
@@ -34,7 +34,10 @@ def error(msg: str, e: Exception, hint: str | None = None) -> None:
     print(f"[red b]{msg} [/red b]{f'[b]{hint}[/b] ' if hint else ''}[i bright_black]{e.args[0]}")
 
 
-def handle_mastodon[**P, T](f: Callable[P, T]) -> Callable[P, T]:
+P = ParamSpec("P")
+T = TypeVar("T")
+
+def handle_mastodon(f: Callable[P, T]) -> Callable[P, T]:
     @functools.wraps(f)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         try:
