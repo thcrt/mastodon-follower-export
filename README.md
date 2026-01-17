@@ -4,7 +4,7 @@
 
 [<img alt="UV Badge" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fastral-sh%2Fuv%2Frefs%2Fheads%2Fmain%2Fassets%2Fbadge%2Fv0.json&style=for-the-badge">](https://docs.astral.sh/uv/)
 [<img alt="License Badge" src="https://img.shields.io/github/license/thcrt/mastodon-follower-export?style=for-the-badge&color=blue">](./LICENSE)
-[<img alt="Build Status Badge" src="https://img.shields.io/github/actions/workflow/status/thcrt/mastodon-follower-export/build.yml?event=release&style=for-the-badge">](https://github.com/thcrt/tattl/actions/workflows/publish.yml)
+[<img alt="Build Status Badge" src="https://img.shields.io/github/actions/workflow/status/thcrt/mastodon-follower-export/build.yml?event=release&style=for-the-badge">](https://github.com/thcrt/mastodon-follower-export/actions/workflows/build.yml)
 
 <img src="./.github/screenshot-gui.png">
 <img src="./.github/screenshot-cli.svg">
