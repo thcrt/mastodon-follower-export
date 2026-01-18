@@ -60,7 +60,7 @@ def handle_mastodon(f: Callable[P, T]) -> Callable[P, T]:
 def login(
     instance_domain: Annotated[str, Argument(help="The domain name of the instance to log in to")],
     force: Annotated[
-        bool, Option("--force", help="Log from scratch, whether already logged in or not")
+        bool, Option("--force", "-f", help="Log from scratch, whether already logged in or not")
     ] = False,
 ) -> int:
     api.instance_domain = instance_domain
@@ -87,10 +87,11 @@ def login(
 @handle_mastodon
 def list_followers(
     mode: Annotated[
-        OutputMode, Option(help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]")
+        OutputMode,
+        Option("--mode", "-m", help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]"),
     ] = OutputMode.auto,
-    header: Annotated[bool, Option(help="Show a header line")] = True,
-    output: Annotated[Path | None, Option(help="Output to a file")] = None,
+    header: Annotated[bool, Option("--header", "-h", help="Show a header line")] = True,
+    output: Annotated[Path | None, Option("--output", "-o", help="Output to a file")] = None,
 ) -> None:
     interactive = sys.stdout.isatty() and output is None
     if mode == OutputMode.auto:
