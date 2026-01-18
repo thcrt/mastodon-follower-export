@@ -8,6 +8,7 @@ from collections.abc import Callable
 from dataclasses import astuple, fields
 from enum import StrEnum, auto
 from io import StringIO
+from pathlib import Path
 from sys import exit as sys_exit
 from typing import Annotated, ParamSpec, TypeVar
 
@@ -36,6 +37,7 @@ def error(msg: str, e: Exception, hint: str | None = None) -> None:
 
 P = ParamSpec("P")
 T = TypeVar("T")
+
 
 def handle_mastodon(f: Callable[P, T]) -> Callable[P, T]:
     @functools.wraps(f)
@@ -88,9 +90,13 @@ def list_followers(
         OutputMode, Option(help="Output an ASCII table [fancy] or a CSV [csv]")
     ] = OutputMode.auto,
     header: Annotated[bool, Option(help="Show a header line")] = True,
+    output: Annotated[Path | None, Option(help="Output to a file")] = None,
 ) -> None:
+    interactive = sys.stdout.isatty() and output is None
     if mode == OutputMode.auto:
-        mode = OutputMode.fancy if sys.stdout.isatty() else OutputMode.csv
+        mode = OutputMode.fancy if interactive else OutputMode.csv
+    buffer = StringIO()
+
     if mode == OutputMode.fancy:
         table = Table(title=f"Followers for user [b]{api.get_current_user()}", show_header=header)
         for field in fields(Follower):
@@ -103,8 +109,9 @@ def list_followers(
                 else:
                     cells.append(str(field))
             table.add_row(*cells)
-        print(table)
+        print(table, file=buffer)
+
     else:
-        s = StringIO()
-        write(api.get_followers(), s, header)
-        print(s.getvalue())
+        write(api.get_followers(), buffer, header)
+
+    output.write_text(buffer.getvalue()) if output else print(buffer.getvalue())
