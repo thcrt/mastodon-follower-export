@@ -87,7 +87,7 @@ def login(
 @handle_mastodon
 def list_followers(
     mode: Annotated[
-        OutputMode, Option(help="Output an ASCII table [fancy] or a CSV [csv]")
+        OutputMode, Option(help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]")
     ] = OutputMode.auto,
     header: Annotated[bool, Option(help="Show a header line")] = True,
     output: Annotated[Path | None, Option(help="Output to a file")] = None,
