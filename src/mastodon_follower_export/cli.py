@@ -115,4 +115,4 @@ def list_followers(
     else:
         write(api.get_followers(), buffer, header)
 
-    output.write_text(buffer.getvalue()) if output else print(buffer.getvalue())
+    output.write_text(buffer.getvalue(), "utf-8") if output else print(buffer.getvalue())
