@@ -96,7 +96,6 @@ def list_followers(
     interactive = sys.stdout.isatty() and output is None
     if mode == OutputMode.auto:
         mode = OutputMode.fancy if interactive else OutputMode.csv
-    buffer = StringIO()
 
     if mode == OutputMode.fancy:
         table = Table(title=f"Followers for user [b]{api.get_current_user()}", show_header=header)
@@ -110,9 +109,11 @@ def list_followers(
                 else:
                     cells.append(str(field))
             table.add_row(*cells)
+        buffer = StringIO()
         print(table, file=buffer)
 
     else:
+        buffer = StringIO(newline="")
         write(api.get_followers(), buffer, header)
 
     output.write_text(buffer.getvalue(), "utf-8") if output else print(buffer.getvalue())
