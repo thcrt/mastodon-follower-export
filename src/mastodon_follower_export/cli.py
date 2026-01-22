@@ -90,7 +90,7 @@ def list_followers(
         OutputMode,
         Option("--mode", "-m", help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]"),
     ] = OutputMode.auto,
-    no_header: Annotated[bool, Option("--no-header", "-H", help="Remove the header line")] = True,
+    no_header: Annotated[bool, Option("--no-header", "-H", help="Remove the header line")] = False,
     output: Annotated[Path | None, Option("--output", "-o", help="Output to a file")] = None,
 ) -> None:
     header = not no_header
