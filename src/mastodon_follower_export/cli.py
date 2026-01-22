@@ -90,9 +90,10 @@ def list_followers(
         OutputMode,
         Option("--mode", "-m", help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]"),
     ] = OutputMode.auto,
-    header: Annotated[bool, Option("--header", "-h", help="Show a header line")] = True,
+    no_header: Annotated[bool, Option("--no-header", "-H", help="Remove the header line")] = True,
     output: Annotated[Path | None, Option("--output", "-o", help="Output to a file")] = None,
 ) -> None:
+    header = not no_header
     interactive = sys.stdout.isatty() and output is None
     if mode == OutputMode.auto:
         mode = OutputMode.fancy if interactive else OutputMode.csv
