@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
 
 
-class FollowerTableModel(QAbstractTableModel):
+class AccountTableModel(QAbstractTableModel):
     def __init__(self, parent: "QObject | None" = None, data: list[User] | None = None) -> None:
         super().__init__(parent)
         self._data = data or []
@@ -78,8 +78,8 @@ class FollowerTableModel(QAbstractTableModel):
         index: "QModelIndex | QPersistentModelIndex",
         role: int = Qt.ItemDataRole.DisplayRole,
     ) -> str | None:
-        follower = self._data[index.row()]
-        value = astuple(follower)[index.column()]
+        account = self._data[index.row()]
+        value = astuple(account)[index.column()]
         match role:
             case Qt.ItemDataRole.DisplayRole:
                 if isinstance(value, str):
@@ -91,7 +91,7 @@ class FollowerTableModel(QAbstractTableModel):
                 return None
 
 
-class FollowerTableView(QTableView):
+class AccountTableView(QTableView):
     def __init__(self, parent: "QWidget | None" = None) -> None:
         super().__init__(parent)
 

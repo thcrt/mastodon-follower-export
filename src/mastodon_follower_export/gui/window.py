@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QPushButton,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -23,9 +24,9 @@ from mastodon_follower_export.wrapper import Mastodon
 from mastodon_follower_export.writer import write_file
 
 from .dialogs import AboutDialog, CodeDialog, InstanceDialog
-from .table import FollowerTableModel, FollowerTableView
+from .table import AccountTableModel, AccountTableView
 from .widgets import DisplayLabel, Throbber
-from .worker import GetFollowersWorker
+from .worker import GetRelationshipsWorker
 
 if TYPE_CHECKING:
     from mastodon_follower_export.wrapper import User
@@ -37,17 +38,20 @@ class CentralWidget(QFrame):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.setContentsMargins(11, 11, 11, 0)
-        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.tab_widget = QTabWidget(self)
+        self.tab_widget.setVisible(False)
+        layout.addWidget(self.tab_widget)
 
-        self.table_view = FollowerTableView()
-        layout.addWidget(self.table_view)
-        self.table_view.setVisible(False)
+        self.followers_table_view = AccountTableView()
+        self.tab_widget.addTab(self.followers_table_view, "Followers")
+
+        self.following_table_view = AccountTableView()
+        self.tab_widget.addTab(self.following_table_view, "Following")
 
         self.hint_label = DisplayLabel(
             self,
             text="""
-                This is where you'll see your followers. <br />
+                This is where you'll see a list of users with whom you have a relationship. <br />
                 You'll need to sign in to your Mastodon instance first.
             """,
         )
@@ -59,13 +63,15 @@ class CentralWidget(QFrame):
         self.login_button.setVisible(False)
         layout.addWidget(self.login_button)
 
-        self.data: list[User] = []
+        self.followers_data: list[User] = []
+        self.following_data: list[User] = []
 
     @Slot()
-    def fill_data(self, data: "list[User]") -> None:
-        self.data = data
-        self.table_view.setModel(FollowerTableModel(self, data))
-        self.table_view.setVisible(True)
+    def fill_data(self, data: "tuple[list[User], list[User]]") -> None:
+        self.followers_data, self.following_data = data
+        self.followers_table_view.setModel(AccountTableModel(self, self.followers_data))
+        self.following_table_view.setModel(AccountTableModel(self, self.following_data))
+        self.tab_widget.setVisible(True)
         self.hint_label.setVisible(False)
         self.login_button.setVisible(False)
 
@@ -177,28 +183,39 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     @Slot()
-    def _fill_data(self, data: "list[User]") -> None:
+    def _fill_data(self, data: "tuple[list[User], list[User]]") -> None:
         self.central_widget.fill_data(data)
         self.action_status.setVisible(False)
 
     @Slot()
     def fill_data(self) -> None:
-        worker = GetFollowersWorker(self.api)
-        self.action_status.status.setText("Fetching followers list")
+        worker = GetRelationshipsWorker(self.api)
+        self.action_status.status.setText("Fetching accounts")
         self.action_status.setVisible(True)
         worker.signals.result.connect(self._fill_data)
         self.threadpool.start(worker)
 
     @Slot()
     def save(self) -> None:
-        path = QFileDialog.getSaveFileName(
+        followers_path = QFileDialog.getSaveFileName(
             self,
+            caption="Save followers",
             dir=QDir(
                 QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
             ).filePath("followers.csv"),
         )[0]
-        if path:
-            write_file(self.central_widget.data, Path(path))
+        if followers_path:
+            write_file(self.central_widget.followers_data, Path(followers_path))
+
+        following_path = QFileDialog.getSaveFileName(
+            self,
+            caption="Save following",
+            dir=QDir(
+                QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+            ).filePath("following.csv"),
+        )[0]
+        if following_path:
+            write_file(self.central_widget.following_data, Path(following_path))
 
     def _prompt_instance(self) -> None:
         instance_dialog = InstanceDialog(self, previous=self.api.instance_domain)
