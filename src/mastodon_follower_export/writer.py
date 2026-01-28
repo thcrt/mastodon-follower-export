@@ -6,24 +6,24 @@ import csv
 from dataclasses import asdict, fields
 from typing import TYPE_CHECKING
 
-from .wrapper import Follower
+from .wrapper import User
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import IO
 
 
-def write(followers: list[Follower], f: "IO[str]", header: bool = True) -> None:
+def write(followers: list[User], f: "IO[str]", header: bool = True) -> None:
     writer = csv.DictWriter(
         f,
         quoting=csv.QUOTE_NOTNULL,
-        fieldnames=[field.name for field in fields(Follower)],
+        fieldnames=[field.name for field in fields(User)],
     )
     if header:
         writer.writeheader()
     writer.writerows([asdict(follower) for follower in followers])
 
 
-def write_file(followers: list[Follower], path: "Path", header: bool = True) -> None:
+def write_file(followers: list[User], path: "Path", header: bool = True) -> None:
     with path.open("w+", newline="", encoding="utf-8") as f:
         write(followers, f, header)

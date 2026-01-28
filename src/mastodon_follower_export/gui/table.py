@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Literal, overload, override
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtWidgets import QHeaderView, QTableView
 
-from mastodon_follower_export.wrapper import Follower
+from mastodon_follower_export.wrapper import User
 
 TOP_LEVEL_INDEX = QModelIndex()
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class FollowerTableModel(QAbstractTableModel):
-    def __init__(self, parent: "QObject | None" = None, data: list[Follower] | None = None) -> None:
+    def __init__(self, parent: "QObject | None" = None, data: list[User] | None = None) -> None:
         super().__init__(parent)
         self._data = data or []
 
@@ -28,7 +28,7 @@ class FollowerTableModel(QAbstractTableModel):
 
     @override
     def columnCount(self, parent: "QModelIndex | QPersistentModelIndex" = TOP_LEVEL_INDEX) -> int:
-        return len(fields(Follower))
+        return len(fields(User))
 
     @overload
     def headerData(
@@ -53,7 +53,7 @@ class FollowerTableModel(QAbstractTableModel):
             return None
         match orientation:
             case Qt.Orientation.Horizontal:
-                return fields(Follower)[section].metadata["display"]
+                return fields(User)[section].metadata["display"]
             case Qt.Orientation.Vertical:
                 return str(section)
             case _:

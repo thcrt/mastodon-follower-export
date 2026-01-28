@@ -43,7 +43,6 @@ deprecateTypingAliases = true
 enableReachabilityAnalysis = true
 reportCallInDefaultInitializer = "warning"
 reportImplicitOverride = "error"
-reportImplicitStringConcatenation = "error"
 reportImportCycles = "warning"
 reportPropertyTypeMismatch = "warning"
 reportUninitializedInstanceVariable = "warning"

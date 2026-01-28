@@ -18,11 +18,16 @@ from rich.prompt import Prompt
 from rich.table import Table
 from typer import Argument, Option, Typer
 
-from .wrapper import Follower, Mastodon
+from .wrapper import Mastodon, User
 from .writer import write
 
 app = Typer()
 api = Mastodon()
+
+
+class QueryMode(StrEnum):
+    followers = auto()
+    following = auto()
 
 
 class OutputMode(StrEnum):
@@ -57,7 +62,7 @@ def handle_mastodon(f: Callable[P, T]) -> Callable[P, T]:
 
 @app.command()
 @handle_mastodon
-def login(
+def command_login(
     instance_domain: Annotated[str, Argument(help="The domain name of the instance to log in to")],
     force: Annotated[
         bool, Option("--force", "-f", help="Log from scratch, whether already logged in or not")
@@ -85,7 +90,14 @@ def login(
 
 @app.command("list")
 @handle_mastodon
-def list_followers(
+def command_list(
+    query: Annotated[
+        QueryMode,
+        Argument(
+            help="Whether to query followers (accounts following you) "
+            "or following (accounts you follow)."
+        ),
+    ] = QueryMode.followers,
     mode: Annotated[
         OutputMode,
         Option("--mode", "-m", help="Output an ASCII table [b](fancy)[/b] or a CSV [b](csv)[/b]"),
@@ -98,11 +110,16 @@ def list_followers(
     if mode == OutputMode.auto:
         mode = OutputMode.fancy if interactive else OutputMode.csv
 
+    data = api.get_followers() if query is QueryMode.followers else api.get_following()
+
     if mode == OutputMode.fancy:
-        table = Table(title=f"Followers for user [b]{api.get_current_user()}", show_header=header)
-        for field in fields(Follower):
+        table = Table(
+            title=f"{query.value.capitalize()} for user [b]{api.get_current_user()}",
+            show_header=header,
+        )
+        for field in fields(User):
             table.add_column(field.metadata["display"])
-        for follower in api.get_followers():
+        for follower in data:
             cells: list[str] = []
             for field in astuple(follower):
                 if isinstance(field, bool):
@@ -115,7 +132,7 @@ def list_followers(
 
     else:
         buffer = StringIO(newline="")
-        write(api.get_followers(), buffer, header)
+        write(data, buffer, header)
 
     if output is not None:
         output.write_text(buffer.getvalue(), "utf-8", newline="")

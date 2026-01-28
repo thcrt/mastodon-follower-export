@@ -28,7 +28,7 @@ from .widgets import DisplayLabel, Throbber
 from .worker import GetFollowersWorker
 
 if TYPE_CHECKING:
-    from mastodon_follower_export.wrapper import Follower
+    from mastodon_follower_export.wrapper import User
 
 
 class CentralWidget(QFrame):
@@ -59,10 +59,10 @@ class CentralWidget(QFrame):
         self.login_button.setVisible(False)
         layout.addWidget(self.login_button)
 
-        self.data: list[Follower] = []
+        self.data: list[User] = []
 
     @Slot()
-    def fill_data(self, data: "list[Follower]") -> None:
+    def fill_data(self, data: "list[User]") -> None:
         self.data = data
         self.table_view.setModel(FollowerTableModel(self, data))
         self.table_view.setVisible(True)
@@ -177,7 +177,7 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     @Slot()
-    def _fill_data(self, data: "list[Follower]") -> None:
+    def _fill_data(self, data: "list[User]") -> None:
         self.central_widget.fill_data(data)
         self.action_status.setVisible(False)
 

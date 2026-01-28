@@ -18,12 +18,28 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class Follower:
+class User:
     username: str = field(metadata={"display": "Username"})
     display_name: str = field(metadata={"display": "Display name"})
     note: str = field(metadata={"display": "Note"})
     url: str = field(metadata={"display": "URL"})
     mutual: bool = field(metadata={"display": "Mutual"})
+
+    @staticmethod
+    def from_api(api: MastodonAPI, account: "Account") -> "User":
+        note = ""
+        mutual = False
+        if relationships := api.account_relationships(account):
+            note = relationships[0].note
+            mutual = relationships[0].following and relationships[0].followed_by
+
+        return User(
+            username=account.acct,
+            display_name=account.display_name,
+            note=note,
+            url=account.url,
+            mutual=mutual,
+        )
 
 
 class Mastodon:
@@ -127,7 +143,7 @@ class Mastodon:
         ).account_verify_credentials()
         return f"@{user.username}@{self.instance_domain}"
 
-    def get_followers(self) -> list[Follower]:
+    def get_followers(self) -> list[User]:
         api = MastodonAPI(
             api_base_url=self.instance_domain,
             access_token=self._access_token,
@@ -135,20 +151,14 @@ class Mastodon:
         followers_response: PaginatableList[Account] = api.fetch_remaining(
             api.account_followers(api.me())
         )
-        followers: list[Follower] = []
-        for follower in followers_response:
-            note = ""
-            mutual = False
-            if relationships := api.account_relationships(follower):
-                note = relationships[0].note
-                mutual = relationships[0].following
-            followers.append(
-                Follower(
-                    username=follower.acct,
-                    display_name=follower.display_name,
-                    note=note,
-                    url=follower.url,
-                    mutual=mutual,
-                )
-            )
-        return followers
+        return [User.from_api(api, account) for account in followers_response]
+
+    def get_following(self) -> list[User]:
+        api = MastodonAPI(
+            api_base_url=self.instance_domain,
+            access_token=self._access_token,
+        )
+        followers_response: PaginatableList[Account] = api.fetch_remaining(
+            api.account_following(api.me())
+        )
+        return [User.from_api(api, account) for account in followers_response]
