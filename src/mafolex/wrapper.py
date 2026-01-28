@@ -43,23 +43,21 @@ class User:
 
 
 class Mastodon:
-    _name = "Mastodon Follower Export"
+    _name = "mafolex"
     _scopes: list[str]
-    _user_agent = (
-        f"mastodon-follower-export {__version__}, using mastodonpy {version('mastodon.py')}"
-    )
+    _user_agent = f"mafolex {__version__}, using mastodonpy {version('mastodon.py')}"
 
     def __init__(self) -> None:
         self._scopes = ["read:accounts", "read:follows"]
 
     @property
     def instance_domain(self) -> str | None:
-        c = keyring.get_credential("mastodon-follower-export/instance-domain", None)
+        c = keyring.get_credential("mafolex/instance-domain", None)
         return c.password if c else None
 
     @instance_domain.setter
     def instance_domain(self, v: str) -> None:
-        keyring.set_password("mastodon-follower-export/instance-domain", "", v)
+        keyring.set_password("mafolex/instance-domain", "", v)
         if not (self._client_id and self._client_secret):
             self._client_id, self._client_secret = MastodonAPI.create_app(
                 self._name,
@@ -93,14 +91,14 @@ class Mastodon:
     def _keyring_lookup(self, key: str) -> None | str:
         if not self.instance_domain:
             return None
-        c = keyring.get_credential(f"mastodon-follower-export/{key}/{self.instance_domain}", None)
+        c = keyring.get_credential(f"mafolex/{key}/{self.instance_domain}", None)
         return c.password if c else None
 
     def _keyring_set(self, key: str, v: str) -> None:
         if not self.instance_domain:
             msg = "Missing instance domain. This shouldn't happen!"
             raise RuntimeError(msg)
-        keyring.set_password(f"mastodon-follower-export/{key}/{self.instance_domain}", "", v)
+        keyring.set_password(f"mafolex/{key}/{self.instance_domain}", "", v)
 
     @property
     def _client_id(self) -> str | None:

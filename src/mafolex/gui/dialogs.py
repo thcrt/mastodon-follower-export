@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLineEdit, QVBoxLayout
 
-from mastodon_follower_export import __version__
+from mafolex import __version__
 
 from .validators import CodeValidator, DomainValidator
 from .widgets import DisplayLabel
@@ -28,7 +28,7 @@ class AboutDialog(QDialog):
             self,
             text=f"""
             <h2>
-                Mastodon Follower Export
+                mafolex
             </h2>
             <h3>
                 {__version__}

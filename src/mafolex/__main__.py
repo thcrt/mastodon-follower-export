@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     else:
         print(
-            "Opening mastodon-follower-export in GUI mode.",
+            "Opening mafolex in GUI mode.",
             "To learn about CLI mode, use the --help flag.",
             sep="\n",
         )

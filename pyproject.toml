@@ -1,5 +1,5 @@
 [project]
-name = "mastodon-follower-export"
+name = "mafolex"
 dynamic = ["version"]
 description = "Export a list of your Mastodon followers"
 readme = "README.md"
@@ -31,12 +31,12 @@ build-backend = "hatchling.build"
 
 [tool.hatch]
 version.source = "vcs"
-build.hooks.vcs.version-file = "src/mastodon_follower_export/_version.py"
-build.packages = ["src/mastodon_follower_export"]
+build.hooks.vcs.version-file = "src/mafolex/_version.py"
+build.packages = ["src/mafolex"]
 
 
 [tool.pyright]
-include = ["src/mastodon_follower_export"]
+include = ["src/mafolex"]
 strict = ["**/*"]
 ignore = ["**/_version.py"]
 deprecateTypingAliases = true

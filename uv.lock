@@ -246,7 +246,7 @@ wheels = [
 ]
 
 [[package]]
-name = "mastodon-follower-export"
+name = "mafolex"
 source = { editable = "." }
 dependencies = [
     { name = "keyring" },

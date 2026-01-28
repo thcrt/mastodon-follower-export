@@ -9,7 +9,7 @@ from PySide6.QtCore import (
     Slot,
 )
 
-from mastodon_follower_export.wrapper import Mastodon
+from mafolex.wrapper import Mastodon
 
 
 class GetRelationshipsWorker(QRunnable):

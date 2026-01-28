@@ -4,7 +4,7 @@ build/
 *.onefile-build/
 dist/
 *.dist/
-mastodon_follower_export.bin
+mafolex.bin
 **/_version.py
 nuitka-crash-report.xml
 

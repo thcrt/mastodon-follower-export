@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from mastodon_follower_export.wrapper import Mastodon
-from mastodon_follower_export.writer import write_file
+from mafolex.wrapper import Mastodon
+from mafolex.writer import write_file
 
 from .dialogs import AboutDialog, CodeDialog, InstanceDialog
 from .table import AccountTableModel, AccountTableView
@@ -29,7 +29,7 @@ from .widgets import DisplayLabel, Throbber
 from .worker import GetRelationshipsWorker
 
 if TYPE_CHECKING:
-    from mastodon_follower_export.wrapper import User
+    from mafolex.wrapper import User
 
 
 class CentralWidget(QFrame):
@@ -92,7 +92,7 @@ class MainWindow(QMainWindow):
 
         self.threadpool = QThreadPool(self)
 
-        self.setWindowTitle("Mastodon Follower Export")
+        self.setWindowTitle("mafolex")
 
         menu_file = QMenu(self, title="&File")
         self.menuBar().addMenu(menu_file)
